@@ -1,0 +1,16 @@
+# Grafana dashboard provisioning file
+# Place this in /etc/grafana/provisioning/dashboards/
+
+apiVersion: 1
+
+providers:
+  - name: 'Kubernetes Resource Dashboards'
+    orgId: 1
+    folder: 'Kubernetes'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

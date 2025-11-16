@@ -1,0 +1,192 @@
+groups:
+  - name: kubernetes_resource_alerts
+    interval: 30s
+    rules:
+      # Cluster-level alerts
+      - alert: ClusterCPUUsageHigh
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{id="/",kubernetes_io_hostname!="",kubernetes_io_role="node"}[5m])) by (cluster)
+          /
+          sum(machine_cpu_cores{kubernetes_io_hostname!="",kubernetes_io_role="node"}) by (cluster)
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: cluster
+        annotations:
+          summary: "Cluster {{ $labels.cluster }} CPU usage is high"
+          description: "Cluster {{ $labels.cluster }} CPU usage is {{ $value | humanizePercentage }}. Current usage is above 80% threshold."
+
+      - alert: ClusterCPUUsageCritical
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{id="/",kubernetes_io_hostname!="",kubernetes_io_role="node"}[5m])) by (cluster)
+          /
+          sum(machine_cpu_cores{kubernetes_io_hostname!="",kubernetes_io_role="node"}) by (cluster)
+          > 0.90
+        for: 5m
+        labels:
+          severity: critical
+          component: cluster
+        annotations:
+          summary: "Cluster {{ $labels.cluster }} CPU usage is critical"
+          description: "Cluster {{ $labels.cluster }} CPU usage is {{ $value | humanizePercentage }}. Immediate action required!"
+
+      - alert: ClusterMemoryUsageHigh
+        expr: |
+          sum(container_memory_working_set_bytes{kubernetes_io_hostname!="", id="/"}) by (cluster)
+          /
+          sum(machine_memory_bytes{kubernetes_io_hostname!=""}) by (cluster)
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: cluster
+        annotations:
+          summary: "Cluster {{ $labels.cluster }} memory usage is high"
+          description: "Cluster {{ $labels.cluster }} memory usage is {{ $value | humanizePercentage }}. Current usage is above 80% threshold."
+
+      - alert: ClusterMemoryUsageCritical
+        expr: |
+          sum(container_memory_working_set_bytes{kubernetes_io_hostname!="", id="/"}) by (cluster)
+          /
+          sum(machine_memory_bytes{kubernetes_io_hostname!=""}) by (cluster)
+          > 0.90
+        for: 5m
+        labels:
+          severity: critical
+          component: cluster
+        annotations:
+          summary: "Cluster {{ $labels.cluster }} memory usage is critical"
+          description: "Cluster {{ $labels.cluster }} memory usage is {{ $value | humanizePercentage }}. Immediate action required!"
+
+      - alert: ClusterFilesystemUsageHigh
+        expr: |
+          sum(container_fs_usage_bytes{device=~"^/dev/.*",id="/",kubernetes_io_hostname!="",kubernetes_io_role="node"}) by (cluster)
+          /
+          sum(container_fs_limit_bytes{device=~"^/dev/.*",id="/",kubernetes_io_hostname!="",kubernetes_io_role="node"}) by (cluster)
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: cluster
+        annotations:
+          summary: "Cluster {{ $labels.cluster }} filesystem usage is high"
+          description: "Cluster {{ $labels.cluster }} filesystem usage is {{ $value | humanizePercentage }}. Consider cleaning up disk space."
+
+      # Node-level alerts
+      - alert: NodeCPUUsageHigh
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{id="/",kubernetes_io_hostname!="",kubernetes_io_role="node"}[5m])) by (instance)
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: node
+        annotations:
+          summary: "Node {{ $labels.instance }} CPU usage is high"
+          description: "Node {{ $labels.instance }} is using {{ $value | humanize }} CPU cores. Check workload distribution."
+
+      - alert: NodeMemoryUsageHigh
+        expr: |
+          sum(container_memory_working_set_bytes{kubernetes_io_hostname!="", id="/"}) by (instance)
+          /
+          sum(machine_memory_bytes{kubernetes_io_hostname!=""}) by (instance)
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: node
+        annotations:
+          summary: "Node {{ $labels.instance }} memory usage is high"
+          description: "Node {{ $labels.instance }} memory usage is {{ $value | humanizePercentage }}. Consider adding more nodes or reducing workload."
+
+      # Namespace-level alerts
+      - alert: NamespaceCPUUsageHigh
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{kubernetes_io_hostname!="",namespace!=""}[5m])) by (cluster, namespace)
+          > 2.0
+        for: 10m
+        labels:
+          severity: warning
+          component: namespace
+        annotations:
+          summary: "Namespace {{ $labels.namespace }} CPU usage is high"
+          description: "Namespace {{ $labels.namespace }} in cluster {{ $labels.cluster }} is using {{ $value | humanize }} CPU cores."
+
+      - alert: NamespaceMemoryUsageHigh
+        expr: |
+          sum(container_memory_working_set_bytes{kubernetes_io_hostname!="",namespace!=""}) by (cluster, namespace)
+          > 4294967296  # 4GB
+        for: 10m
+        labels:
+          severity: warning
+          component: namespace
+        annotations:
+          summary: "Namespace {{ $labels.namespace }} memory usage is high"
+          description: "Namespace {{ $labels.namespace }} in cluster {{ $labels.cluster }} is using {{ $value | humanize1024 }}B of memory."
+
+      # Pod/Container-level alerts
+      - alert: PodCPUThrottlingHigh
+        expr: |
+          sum(rate(container_cpu_cfs_throttled_seconds_total{container!="POD",namespace!=""}[5m])) by (namespace, pod_name, container_name)
+          /
+          sum(rate(container_cpu_cfs_periods_total{container!="POD",namespace!=""}[5m])) by (namespace, pod_name, container_name)
+          > 0.25
+        for: 5m
+        labels:
+          severity: warning
+          component: pod
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod_name }} is being throttled"
+          description: "Container {{ $labels.container_name }} in pod {{ $labels.namespace }}/{{ $labels.pod_name }} is being CPU throttled {{ $value | humanizePercentage }} of the time. Consider increasing CPU limits."
+
+      - alert: PodMemoryUsageNearLimit
+        expr: |
+          container_memory_working_set_bytes{container!="POD",namespace!=""}
+          /
+          container_spec_memory_limit_bytes{container!="POD",namespace!=""} > 0
+          > 0.90
+        for: 5m
+        labels:
+          severity: warning
+          component: pod
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod_name }} is near memory limit"
+          description: "Container {{ $labels.container_name }} in pod {{ $labels.namespace }}/{{ $labels.pod_name }} is using {{ $value | humanizePercentage }} of its memory limit. Risk of OOMKill."
+
+      - alert: PodRestartingFrequently
+        expr: |
+          rate(kube_pod_container_status_restarts_total[15m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: pod
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is restarting frequently"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} container {{ $labels.container }} has restarted {{ $value | humanize }} times in the last 15 minutes."
+
+      # I/O alerts
+      - alert: ContainerHighDiskIO
+        expr: |
+          sum(rate(container_fs_reads_bytes_total{container!="POD",namespace!=""}[5m]) + rate(container_fs_writes_bytes_total{container!="POD",namespace!=""}[5m])) by (namespace, pod_name, container_name)
+          > 52428800  # 50MB/s
+        for: 10m
+        labels:
+          severity: info
+          component: pod
+        annotations:
+          summary: "Container {{ $labels.namespace }}/{{ $labels.pod_name }}/{{ $labels.container_name }} has high disk I/O"
+          description: "Container {{ $labels.namespace }}/{{ $labels.pod_name }}/{{ $labels.container_name }} is doing {{ $value | humanize1024 }}B/s of disk I/O."
+
+      # Network alerts
+      - alert: PodHighNetworkTraffic
+        expr: |
+          sum(rate(container_network_receive_bytes_total{namespace!=""}[5m]) + rate(container_network_transmit_bytes_total{namespace!=""}[5m])) by (namespace, pod_name)
+          > 104857600  # 100MB/s
+        for: 10m
+        labels:
+          severity: info
+          component: pod
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod_name }} has high network traffic"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod_name }} is generating {{ $value | humanize1024 }}B/s of network traffic."
