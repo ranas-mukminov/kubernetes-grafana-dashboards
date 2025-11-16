@@ -1,3 +1,12 @@
+# 1.0.0 (2025-11-16)
+
+
+### Features
+
+* add Helm chart for easy installation ([c746d8a](https://github.com/ranas-mukminov/kubernetes-grafana-dashboards/commit/c746d8afb0bb18931b4854d56bca21a2915bdc99))
+* add modern repository structure and deployment automation ([d8b7ee5](https://github.com/ranas-mukminov/kubernetes-grafana-dashboards/commit/d8b7ee5f88933d872ca31ed086bd1c0421e0ffbb))
+* add new monitoring dashboards for CoreDNS, etcd, API Server, and certificates ([d29523d](https://github.com/ranas-mukminov/kubernetes-grafana-dashboards/commit/d29523d66566e2f1cf8a67deb20b7584c1048348))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
