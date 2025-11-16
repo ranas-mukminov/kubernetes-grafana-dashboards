@@ -5,9 +5,33 @@ namespace: monitoring
 
 # ConfigMaps for Grafana dashboards
 configMapGenerator:
-  - name: grafana-dashboard-cluster
+  - name: grafana-dashboard-cluster-resources
     files:
       - dashboards/cluster/k8s_resource_usage_cluster.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+  - name: grafana-dashboard-coredns
+    files:
+      - dashboards/cluster/coredns-monitoring.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+  - name: grafana-dashboard-etcd
+    files:
+      - dashboards/cluster/etcd-monitoring.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+  - name: grafana-dashboard-apiserver
+    files:
+      - dashboards/cluster/apiserver-monitoring.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+  - name: grafana-dashboard-certificates
+    files:
+      - dashboards/cluster/certificate-expiration.json
     options:
       labels:
         grafana_dashboard: "1"
