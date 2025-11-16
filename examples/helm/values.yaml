@@ -1,0 +1,91 @@
+# Example values for kube-prometheus-stack Helm chart
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+grafana:
+  enabled: true
+  
+  # Import dashboards from this repository
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'kubernetes-dashboards'
+          orgId: 1
+          folder: 'Kubernetes'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/kubernetes-dashboards
+  
+  dashboardsConfigMaps:
+    kubernetes-dashboards: grafana-dashboard-cluster
+  
+  # Alternative: Use sidecar to auto-import dashboards with label
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      folder: /tmp/dashboards
+      provider:
+        foldersFromFilesStructure: true
+  
+  # Datasources
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-operated:9090
+          access: proxy
+          isDefault: true
+
+prometheus:
+  enabled: true
+  
+  prometheusSpec:
+    # Retention configuration
+    retention: 30d
+    retentionSize: "50GB"
+    
+    # Service Monitor selector
+    serviceMonitorSelector:
+      matchLabels:
+        prometheus: kube-prometheus
+    
+    # Pod Monitor selector
+    podMonitorSelector:
+      matchLabels:
+        prometheus: kube-prometheus
+    
+    # Resources
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+    
+    # Storage
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+
+# Exporters
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+# Alertmanager
+alertmanager:
+  enabled: true

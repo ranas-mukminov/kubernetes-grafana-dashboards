@@ -1,0 +1,40 @@
+# Default values for kubernetes-grafana-dashboards.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Namespace where ConfigMaps will be created
+namespace: monitoring
+
+# Labels to apply to all ConfigMaps
+labels:
+  grafana_dashboard: "1"
+  app.kubernetes.io/name: grafana-dashboards
+  app.kubernetes.io/component: monitoring
+
+# Dashboards to include
+dashboards:
+  cluster:
+    enabled: true
+    # List of dashboard files to include
+    files:
+      - k8s_resource_usage_cluster.json
+      - coredns-monitoring.json
+      - etcd-monitoring.json
+      - apiserver-monitoring.json
+      - certificate-expiration.json
+  
+  namespace:
+    enabled: true
+    files:
+      - k8s_resource_usage_namespace.json
+  
+  pods:
+    enabled: true
+    files:
+      - k8s_resource_usage_namespace_pods.json
+
+# Additional annotations for ConfigMaps
+annotations: {}
+
+# Create namespace if it doesn't exist
+createNamespace: false

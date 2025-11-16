@@ -1,0 +1,99 @@
+---
+# ConfigMap for Grafana dashboard provisioning
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: monitoring
+  labels:
+    app: grafana
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'kubernetes-dashboards'
+        orgId: 1
+        folder: 'Kubernetes'
+        type: file
+        disableDeletion: false
+        editable: true
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards/kubernetes
+
+---
+# ConfigMap for cluster dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-cluster
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app: grafana
+data:
+  k8s_resource_usage_cluster.json: |-
+    # Dashboard JSON content goes here
+    # Use: kubectl create configmap grafana-dashboard-cluster \
+    #        --from-file=dashboards/cluster/k8s_resource_usage_cluster.json \
+    #        -n monitoring
+
+---
+# Example Grafana deployment with dashboard sidecar
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+            - name: dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards/kubernetes
+        
+        # Sidecar container to watch for dashboard ConfigMaps
+        - name: dashboards-sidecar
+          image: kiwigrid/k8s-sidecar:latest
+          env:
+            - name: LABEL
+              value: "grafana_dashboard"
+            - name: FOLDER
+              value: "/var/lib/grafana/dashboards/kubernetes"
+            - name: NAMESPACE
+              value: "monitoring"
+            - name: RESOURCE
+              value: "configmap"
+          volumeMounts:
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards/kubernetes
+      
+      volumes:
+        - name: grafana-storage
+          emptyDir: {}
+        - name: dashboard-provider
+          configMap:
+            name: grafana-dashboard-provider
+        - name: dashboards
+          emptyDir: {}

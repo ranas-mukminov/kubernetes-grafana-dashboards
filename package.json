@@ -1,0 +1,23 @@
+{
+  "name": "kubernetes-grafana-dashboards",
+  "version": "2.0.0",
+  "description": "Modern Grafana dashboards for Kubernetes monitoring with Prometheus",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ranas-mukminov/kubernetes-grafana-dashboards.git"
+  },
+  "keywords": [
+    "kubernetes",
+    "grafana",
+    "prometheus",
+    "monitoring",
+    "dashboards",
+    "observability"
+  ],
+  "author": "Ranas Mukminov",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ranas-mukminov/kubernetes-grafana-dashboards/issues"
+  },
+  "homepage": "https://github.com/ranas-mukminov/kubernetes-grafana-dashboards#readme"
+}
