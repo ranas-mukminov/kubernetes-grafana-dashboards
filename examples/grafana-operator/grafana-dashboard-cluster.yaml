@@ -1,0 +1,43 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: k8s-resource-usage-cluster
+  namespace: monitoring
+  labels:
+    dashboards: "grafana"
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  
+  # Dashboard JSON content
+  json: |
+    {
+      "dashboard": {
+        "title": "Kubernetes Resource Usage - Cluster",
+        "tags": ["kubernetes", "cluster", "resources"],
+        "timezone": "browser",
+        "schemaVersion": 16,
+        "version": 0
+      }
+    }
+  
+  # Alternative: Load from ConfigMap
+  # configMapRef:
+  #   name: grafana-dashboard-cluster
+  #   key: k8s_resource_usage_cluster.json
+  
+  # Alternative: Load from URL
+  # url: https://raw.githubusercontent.com/ranas-mukminov/kubernetes-grafana-dashboards/main/dashboards/cluster/k8s_resource_usage_cluster.json
+  
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "Prometheus"
+  
+  folder: "Kubernetes"
+  
+  # Refresh settings
+  resyncPeriod: 30m
+  
+  # Permissions
+  allowCrossNamespaceImport: false

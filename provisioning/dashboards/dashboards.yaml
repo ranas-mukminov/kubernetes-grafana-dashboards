@@ -1,0 +1,38 @@
+apiVersion: 1
+
+providers:
+  # Provider for Kubernetes cluster dashboards
+  - name: 'kubernetes-cluster'
+    orgId: 1
+    folder: 'Kubernetes/Cluster'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/cluster
+      foldersFromFilesStructure: true
+  
+  # Provider for Kubernetes namespace dashboards
+  - name: 'kubernetes-namespace'
+    orgId: 1
+    folder: 'Kubernetes/Namespace'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/namespace
+      foldersFromFilesStructure: true
+  
+  # Provider for Kubernetes pod dashboards
+  - name: 'kubernetes-pods'
+    orgId: 1
+    folder: 'Kubernetes/Pods'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/pods
+      foldersFromFilesStructure: true

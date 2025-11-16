@@ -1,0 +1,38 @@
+# Build artifacts
+dist/
+build/
+*.tgz
+
+# Dependencies
+node_modules/
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+/tmp/
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Helm
+charts/
+Chart.lock
+
+# Test coverage
+coverage/
+*.cover
