@@ -30,7 +30,7 @@ Thumbs.db
 .terraform.lock.hcl
 
 # Helm
-charts/
+*.tgz
 Chart.lock
 
 # Test coverage

@@ -1,0 +1,27 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Grafana dashboards have been deployed to namespace: {{ .Values.namespace }}
+
+To verify the installation:
+
+  kubectl get configmaps -n {{ .Values.namespace }} -l grafana_dashboard=1
+
+The following dashboard ConfigMaps have been created:
+
+{{- range $category, $config := .Values.dashboards }}
+{{- if $config.enabled }}
+{{ $category | upper }} Dashboards:
+{{- range $config.files }}
+  - grafana-dashboard-{{ $category }}-{{ . | replace "_" "-" | replace ".json" "" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+If you're using Grafana with sidecar enabled, the dashboards will be automatically imported.
+
+For manual import, you can extract the dashboard JSON from the ConfigMaps:
+
+  kubectl get configmap <configmap-name> -n {{ .Values.namespace }} -o jsonpath='{.data}'
+
+For more information, visit: https://github.com/ranas-mukminov/kubernetes-grafana-dashboards
+

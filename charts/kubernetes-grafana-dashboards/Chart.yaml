@@ -1,0 +1,18 @@
+apiVersion: v2
+name: kubernetes-grafana-dashboards
+description: A Helm chart for Kubernetes Grafana Dashboards
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+keywords:
+  - kubernetes
+  - grafana
+  - dashboards
+  - monitoring
+  - prometheus
+home: https://github.com/ranas-mukminov/kubernetes-grafana-dashboards
+sources:
+  - https://github.com/ranas-mukminov/kubernetes-grafana-dashboards
+maintainers:
+  - name: Ranas Mukminov
+    email: ranas-mukminov@users.noreply.github.com

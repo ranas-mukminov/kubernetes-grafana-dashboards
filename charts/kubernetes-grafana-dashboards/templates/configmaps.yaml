@@ -1,0 +1,23 @@
+{{- range $category, $config := .Values.dashboards }}
+{{- if $config.enabled }}
+{{- range $config.files }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-{{ $category }}-{{ . | replace "_" "-" | replace ".json" "" }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    {{- range $key, $value := $.Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- with $.Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{ . }}: |-
+{{ $.Files.Get (printf "dashboards/%s/%s" $category .) | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -48,7 +48,22 @@ kubectl apply -f examples/argocd/application.yaml
 
 See [examples/argocd/](examples/argocd/) for full configuration.
 
-### Using Helm (kube-prometheus-stack)
+### Using Helm Chart
+
+```bash
+# Install from local chart
+cd charts/kubernetes-grafana-dashboards
+helm install grafana-dashboards . -n monitoring --create-namespace
+
+# Or with custom values
+helm install grafana-dashboards . -n monitoring \
+  --set namespace=observability \
+  --set dashboards.cluster.enabled=true
+```
+
+See [charts/kubernetes-grafana-dashboards/README.md](charts/kubernetes-grafana-dashboards/README.md) for more details.
+
+### Using Helm with kube-prometheus-stack
 
 Add to your `values.yaml`:
 
