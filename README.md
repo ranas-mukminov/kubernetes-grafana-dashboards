@@ -2,6 +2,8 @@
 
 Modern, comprehensive Grafana dashboards for Kubernetes monitoring with support for Prometheus 2.40+ and Kubernetes 1.24+.
 
+[[English]](#) | [[Русский](README.ru.md)]
+
 [![Validate Dashboards](https://github.com/ranas-mukminov/kubernetes-grafana-dashboards/actions/workflows/validate.yml/badge.svg)](https://github.com/ranas-mukminov/kubernetes-grafana-dashboards/actions/workflows/validate.yml)
 
 ## 📊 Dashboards
